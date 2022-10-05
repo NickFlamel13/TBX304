@@ -1,0 +1,10 @@
+#include "tb8504-msm8917-pinctrl.dtsi"
+#include "tb8504-msm8937-mdss-panels.dtsi"
+#include "tb8504-msm8937-mdss.dtsi"
+#include "tb8504-msm8937.dtsi"
+#include "tb8504-msm8917-camera-sensor-qrd.dtsi"
+#include "tb8504-msm-pm8937.dtsi"
+#include "tb8504-msm8917-pmi8937-qrd-sku5.dtsi"
+#include "tb8504-msm8917-regulator.dtsi"
+#include "tb8504-msm8917-pm.dtsi"
+
