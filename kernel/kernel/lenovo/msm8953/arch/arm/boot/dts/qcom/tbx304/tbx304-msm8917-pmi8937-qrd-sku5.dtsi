@@ -1,0 +1,136 @@
+/{
+	qrd_batterydata: qcom,battery-data {
+		/delete-node/ qcom,qrd_msm8937_sku2_2590mah;
+		#include "Huaqin_A609x_7000mAh_averaged_MasterSlave.dtsi"
+		#include "Huaqin_A609x_7000mAh_averaged_SecondSlave.dtsi"
+	};
+};
+
+
+&soc {
+    
+    i2c@78b7000 { /* BLSP1 QUP3 */
+        status = "ok";
+        goodix_ts@5d {
+            compatible = "goodix,gt9xx";
+            reg = <0x5d>;
+            interrupt-parent = <&tlmm>;
+            interrupts = <65 0x2008>;
+            vcc_i2c-supply = <&pm8917_l6>;
+            vdd_ana-supply = <&pm8917_l10>;
+            goodix,rst-gpio = <&tlmm 64 0x00>;
+            goodix,irq-gpio = <&tlmm 65 0x00>;
+            pinctrl-names = "pmx_ts_active",
+                        "pmx_ts_suspend",
+                        "pmx_ts_release";
+            pinctrl-0 = <&ts_int_active &ts_reset_active>;
+            pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+            pinctrl-2 = <&ts_release>;
+            goodix,cfg-group0 = [
+            54 20 03 00 05 0a 34 12 21 c4 5a
+            05 50 3c 3a 25 00 00 1f c8 22 22
+            00 16 19 1c 14 95 35 ff 1c 1e 79
+            17 2b 65 00 03 33 1c 14 15 15 9c
+            83 03 3c 3c 2b 08 1b 14 28 94 c5
+            83 19 3c 23 04 ae 15 60 9a 18 aa
+            87 1c 88 79 20 20 6b 25 00 6b 90
+            46 78 4a 0a 80 30 18 20 12 33 a0
+            33 43 0a 62 43 05 0f 00 00 04 88
+            78 46 18 37 88 00 02 28 14 00 00
+            3c 28 1d 1c 1b 1a 19 18 17 16 15
+            14 13 12 11 10 0f 0e 0d 0c 0b 0a
+            09 08 07 06 05 04 03 02 01 00 2a
+            29 28 27 26 25 24 23 22 21 20 1f
+            1e 1d 1c 1b 19 18 17 16 15 14 13
+            12 11 10 0f 0e 0d 0c 0b 0a 09 08
+            07 06 05 04 03 02 01 00 63 01
+            ];
+
+            goodix,cfg-group2 = [
+            55 20 03 00 05 0a 34 12 22 c4 5a
+            05 50 3c 3a 23 00 00 1f c8 22 22 
+            00 16 19 1c 14 95 35 ff 1c 1e 7a 
+            17 2c 65 09 03 33 1c 14 15 15 9c 
+            83 03 3c 3c 2b 08 1b 14 28 8f c5 
+            83 19 32 14 04 ae 15 60 9a 18 aa 
+            87 1c 88 79 20 20 6b 25 00 6b 90 
+            46 78 4a 0a 80 30 18 20 12 33 a0 
+            33 43 0a 62 43 05 0f 00 00 04 88 
+            78 46 18 37 88 00 02 28 1e 00 00 
+            5a 46 1d 1c 1b 1a 19 18 17 16 15 
+            14 13 12 11 10 0f 0e 0d 0c 0b 0a 
+            09 08 07 06 05 04 03 02 01 00 2a 
+            29 28 27 26 25 24 23 22 21 20 1f 
+            1e 1d 1c 1b 19 18 17 16 15 14 13 
+            12 11 10 0f 0e 0d 0c 0b 0a 09 08 
+            07 06 05 04 03 02 01 00 30 01
+            ];
+        };
+    };
+
+    hall2_ic {
+	compatible = "hall-switch";
+	interrupt-parent = <&tlmm>;
+	interrupts = <61 3>;
+	interrupt-names = "hall-int";
+	vddio-supply = <&pm8917_l10>;
+	linux,gpio-int = <&tlmm 61 3>;
+	linux,wakeup;
+	linux,min-uv = <2800000>;
+	linux,max-uv = <2850000>;
+    };
+
+};
+
+
+&pmi8937_fg {
+	qcom,thermal-coefficients = [da 86 f0 50 08 3c];
+	qcom,cold-bat-decidegc = <(-20)>;
+	qcom,cool-bat-decidegc = <150>;
+	qcom,cold-hot-jeita-hysteresis = <15 45>;
+	qcom,warm-bat-decidegc = <450>;
+	qcom,hot-bat-decidegc = <520>;
+
+	qcom,fg-chg-iterm-ma = <256>;
+	qcom,fg-cutoff-voltage-mv = <3400>;
+	qcom,fg-iterm-ma = <270>;
+	qcom,use-fg-usbid;
+	qcom,resume-soc = <99>;
+};
+
+
+&spmi_bus {
+	qcom,pmi8937@2 {
+		qcom,leds@a100 {
+			status = "disabled";
+			qcom,led_green {
+				qcom,id = <6>;
+				label = "mpp";
+				linux,name = "green";
+				qcom,max-current = <20>;
+				qcom,default-state = "off";
+				qcom,mode-ctrl = <0x60>;
+				qcom,mode = "pwm";
+				qcom,current-setting = <15>;
+				pwms = <&pmi8937_pwm 0 0>;
+				qcom,source-sel = <0xA>;
+				qcom,pwm-us = <1000>;
+				qcom,use-blink;
+				qcom,start-idx = <1>;
+				qcom,duty-pcts = [00 19 32 4B 64 64 4B 32 19 00];
+			};
+			/delete-node/ qcom,led_mpp_2;
+		};
+	};
+};
+
+&pmi8937_flash0 {
+	status = "disabled";
+};
+
+&i2c_5  {
+	couloMeter@55 {
+		compatible = "qcom,couloMeter";
+		reg = <0x55>;
+	};
+};

@@ -1,0 +1,49 @@
+&pmi8937_pwm {
+	status = "okay";
+	qcom,dtest-line = <0x02>;
+	qcom,dtest-output = <0x02>;
+	qcom,mode-select = <0x00>;
+	qcom,period = <2300000>;
+	qcom,pwm {
+		label = "pwm";
+		qcom,duty = <0xc3500>;
+	};
+};
+
+&pmi8937_torch0 {
+	status = "disabled";
+};
+
+&wled {
+	qcom,fs-curr-ua = <22500>;
+	qcom,led-strings-list = [00 01 02 03];
+	/delete-property/ qcom,en-ext-pfet-sc-pro;
+};
+
+&pmi8937_charger {
+	qcom,charge-unknown-battery;
+	qcom,custom-cable-max-ma = <500>;
+	qcom,fastchg-current-comp = <1200>;
+	qcom,fg-cc-cv-threshold-mv = <4400>;
+	qcom,float-voltage-comp = <9>;
+	qcom,float-voltage-mv = <4400>;
+	qcom,iterm-ma = <256>;
+	qcom,resume-delta-mv = <100>;
+	qcom,thermal-mitigation = <0x76c 0x76c 0x76c 0x00>;
+	qcom,use-fg-usbid;
+
+	/delete-property/ qcom,parallel-allowed-lowering-ma;
+	/delete-property/ qcom,parallel-usb-9v-min-current-ma;
+	/delete-property/ qcom,parallel-usb-min-current-ma;
+	/delete-property/ qcom,autoadjust-vfloat;
+
+	qcom,usb-chgpth@1300 {
+		interrupt-names = "usbin-uv", "usbin-ov", "usbin-src-det", "aicl-done", "usbid-change";
+		interrupts =	<0x2 0x13 0x0>,
+				<0x2 0x13 0x1>,
+				<0x2 0x13 0x2>,
+				<0x2 0x13 0x5>,
+				<0x2 0x13 0x6>;
+	};
+
+};

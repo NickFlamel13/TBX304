@@ -1,0 +1,5 @@
+&apc_vreg_corner {
+	qcom,cpr-speed-bin-max-corners =
+				<0 0 1 2 4>,
+				<1 0 1 2 5>;
+};

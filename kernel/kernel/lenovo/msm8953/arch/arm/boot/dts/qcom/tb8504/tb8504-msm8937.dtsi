@@ -1,0 +1,317 @@
+/ {
+
+qcom,msm-id = <303 0x0>, <308 0x0>, <309 0x0>,<307 0x0>;
+
+	reserved-memory {
+		ramoops_mem: ramoops_region@0 {
+			compatible = "removed-dma-pool";
+			no-map;
+			reg = <0 0x8ee00000 0x0 0x80000>;
+		};
+	};
+};
+
+
+&firmware {
+	android {
+		fstab {
+			system {
+					compatible = "android,system";
+					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/system";
+					type = "ext4";
+					mnt_flags = "ro,barrier=1,discard";
+					fsmgr_flags = "wait";
+					status = "ok";
+			};
+
+			vendor {
+				status = "disabled";
+			};
+		};
+	};
+};
+
+&i2c_3{
+	/delete-node/ focaltech@38;
+};
+
+&i2c_3 {
+	status = "ok";
+	clock-frequency = <400000>;
+
+	elan@10 {
+		compatible = "elan,ts";
+		reg = <0x10>;
+
+		/* GPIO 38, high-to-low edge triggered */
+		interrupts = <65 0x2>;
+		interrupt-parent = <&tlmm>;
+		elan,name = "elan_ts";
+		elan,intr-gpio = <&tlmm 65 0x2008>;
+		elan,rst-gpio = <&tlmm 64 0x00>;
+		elan,3v3-gpio = <&tlmm 47 0x00>;		//for elan tp
+		elan,1v8-gpio = <&tlmm  0   0x00>;		//for elan tp
+		//pm8917_l10_switch-supply = <&pm8917_l10>;
+		//pm8917_l17_switch-supply = <&pm8917_l17>;
+		elan,max_x = <800>;
+		elan,max_y = <1280>;
+	};
+
+	himax-ts@48 {
+		compatible               	= "himax,hxcommon";
+		reg                      	= <0x48>;
+		interrupt-parent         	= <&tlmm>;
+		interrupts               	= <65 0x2>;
+		himax,panel-coords   	= <0 800 0 1280>;
+		himax,display-coords 	= <0 800 0 1280>;
+		himax,irq-gpio       	= <&tlmm 65 0x00>;
+		himax,rst-gpio		= <&tlmm 8 0x00>;
+		himax,3v3-gpio		= <&tlmm 47 0x00>;
+		report_type             = <1>;
+	};
+	
+	focaltech@38{
+		compatible = "focaltech,fts";
+		reg = <0x38>;
+
+		interrupts = <65 0x02>;
+		interrupt-parent = <&tlmm>;
+		focaltech,reset-gpio = <&tlmm 64 0x01>;
+		focaltech,irq-gpio = <&tlmm 65 0x02>;
+		focaltech,max-touch-number = <10>;
+		focaltech,display-coords = <0 0 800 1280>;
+
+		//focaltech,have-key;
+		//focaltech,key-number = <3>;
+		//focaltech,keys = <139 102 158>;
+		//focaltech,key-y-coord = <2000>;
+		//focaltech,key-x-coords = <200 600 800>;
+       };
+};
+
+&pm8937_vadc {
+	chan@11 {
+		label = "usbid";//pa_therm1
+		reg = <0x11>;
+		qcom,decimation = <0>;
+		qcom,pre-div-channel-scaling = <0>;
+		qcom,calibration-type = "absolute";//ratiometric
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <0>;
+		qcom,fast-avg-setup = <0>;
+		//status = "okay";
+		/delete-property/ qcom,vadc-thermal-node;
+	};
+};
+
+&i2c_2 {
+	smb1360_otg_supply: smb1360-chg-fg@14 {
+            compatible = "qcom,smb1360-chg-fg";
+            reg = <0x14>;
+            interrupt-parent = <&tlmm>;
+            interrupts = <61 2>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&smb_int_default>;
+			qcom,stat-pulsed-irq;
+            qcom,chg-inhibit-disabled;
+            qcom,shdn-after-pwroff;
+            qcom,iterm-ma = <100>;
+            /*battery capacity*/
+            qcom,float-voltage-mv = <4400>;
+            qcom,fg-cc-to-cv-mv = <4400>;
+            qcom,fg-cutoff-voltage-mv = <3400>;
+            qcom,fg-voltage-min-mv = <3450>;
+            qcom,fg-voltage-empty-mv = <3400>;
+            qcom,fg-suspend-voltage-empty-mv = <3400>;
+            qcom,cfg-current-limited = <1000>;
+            qcom,fg-ibatt-standby-ma = <200>;
+            qcom,fg-soc-max = <90>;
+            qcom,fg-soc-min = <10>;
+            qcom,fg-batt-capacity-mah = <4850>;
+            qcom,fg-cc-soc-coeff = <0x7AC2>;
+            // feimaotui B = 3380 sunwoda B = 3435
+            qcom,thermistor-c1-coeff = <0x86CF>;
+            //qcom,thermistor-c1-coeff-sunwoda = <0x86C5>;
+            //qcom,thermistor-c1-coeff-feimaotui = <0x86DA>;
+            qcom,charging-timeout = <1536>;
+            qcom,otg-batt-curr-limit = <1500>; //real:1500*2
+            qcom,recharge-thresh-mv = <100>;
+            qcom,fg-auto-recharge-soc = <99>;
+            qcom,thermal-mitigation = <1500 1200 900 600>;
+            qcom,fg-delta-soc = <1>;
+            qcom,empty-soc-disabled;
+            regulator-name = "smb1360_otg_vreg";
+            qcom,rsense-10mhom;
+            qcom,fg-reset-at-pon;
+            qcom,fg-reset-thresold-mv = <200>;
+            qcom,soft-jeita-supported;
+            qcom,warm-bat-decidegc = <450>;
+            qcom,cool-bat-decidegc = <150>;
+            qcom,otp-hard-jeita-config;
+            qcom,otp-hot-bat-decidegc = <500>;
+            qcom,otp-cold-bat-decidegc = <0>; //<(-10)>;
+            qcom,otp-hard-jeita-hysteresis = <30 30>;
+            qcom,warm-bat-mv = <4200>;
+            qcom,cool-bat-mv = <4400>;
+            qcom,warm-bat-ma = <450>; //real:450*2
+            qcom,cool-bat-ma = <450>; //real:450*2
+            qcom,report-temp-by-d-work;
+
+            qcom,battery-type-b = "feimaotui_4850mah";
+            //qcom,battery-type-a = "sunwoda_4850mah";
+            qcom,battery-type-a = "Lenovo_TAB48_4850mah";
+            qcom,led_control = <&tlmm 43 0x0>;
+
+            qcom,batt-profile-select;
+            vdd-supply = <&pm8917_l16>;
+            qcom,smb1360-vadc = <&pm8937_vadc>;
+/*
+            qcom,profile-a-rid-kohm = <22>;
+            qcom,profile-b-rid-kohm = <110>;
+            qcom,batt-id-vref-uv = <1800000>;
+            qcom,batt-id-rpullup-kohm = <68>;
+*/
+            agassiz,force-select-profile-b;
+        };
+};
+
+
+&i2c_5{ /* BLSP1 QUP2 */
+	tps65132@3e {
+		compatible = "ti,tps65132";
+		reg = <0x3e>;
+		i2c-pwr-supply = <&pm8917_l6>;
+		ti,en-gpio-lpm;
+		pinctrl-names = "default";
+		pinctrl-0 = <&tps65132_en_default>;
+
+		regulators {
+			tps65132_pos: pos-boost {
+				regulator-name = "tps65132-pos";
+				regulator-min-microvolt = <5400000>;
+				regulator-max-microvolt = <5900000>;
+				ti,discharge-enable;
+				ti,enable-time = <800>;
+				ti,current-limit = <200000>;
+				ti,en-gpio = <&tlmm 44 0>;
+			};
+
+			tps65132_neg: neg-boost {
+				regulator-name = "tps65132-neg";
+				regulator-min-microvolt = <5400000>;
+				regulator-max-microvolt = <5900000>;
+				ti,discharge-enable;
+				ti,enable-time = <800>;
+				ti,current-limit = <40000>;
+				ti,en-gpio = <&tlmm 45 0>;
+			};
+		};
+	};
+};
+
+&usb_otg{
+	interrupts = <0 134 0>,<0 140 0>,<0 136 0>;
+	interrupt-names = "core_irq", "async_irq", "phy_irq";
+	 qcom,hsusb-otg-mode = <3>;
+	//qcom,usbid-gpio = <&msm_gpio 41 0>;
+	qcom,usbid-gpio = <&tlmm 12 0x00>;
+	qcom,usbid-vadc = <&pm8937_vadc>;
+	//qcom,usbid-switch = <&msm_gpio 38 0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&usbid_default>;
+	//vbus_otg-supply = <&smb1360_otg_supply>;
+	//qcom,hsusb-otg-mode = <3>;
+	vbus_otg-supply = <&smb1360_otg_supply>;
+	HSUSB_gpiopull-supply = <&pm8917_l16>;
+};
+
+&int_codec {
+	qcom,model = "msm8917-sku5-snd-card";
+	//compatible = "qcom,msm8952-audio-codec";
+	status = "okay";
+//	msm-vdd-wsa-switch-supply = <&pm8917_l10>;
+//	qcom,msm-vdd-wsa-switch-voltage = <2800000>;
+//	qcom,msm-vdd-wsa-switch-current = <5000>;
+	qcom,msm-mbhc-hphl-swh = <1>;
+	qcom,msm-mbhc-gnd-swh = <1>;
+	qcom,msm-micbias1-ext-cap;
+	qcom,msm-micbias2-ext-cap;
+	qcom,msm-ext-pa = "primary";
+	qcom,msm-mclk-freq = <9600000>;
+	qcom,msm-gpios =
+		"pri_i2s",
+		"us_eu_gpio";//
+	qcom,pinctrl-names =
+		"all_off",
+		"pri_i2s_act",
+		"us_eu_gpio_act",//
+		"pri_i2s_us_eu_gpio_act",
+		"spkl_ext_pa_sus",
+		"spkr_ext_pa_sus",
+		"spkl_ext_pa_act",
+		"spkr_ext_pa_act";
+	pinctrl-names =
+		"all_off",
+		"pri_i2s_act",
+		"us_eu_gpio_act",//
+		"pri_i2s_us_eu_gpio_act",
+		"spkl_ext_pa_sus",
+		"spkr_ext_pa_sus",
+		"spkl_ext_pa_act",
+		"spkr_ext_pa_act";
+	pinctrl-0 = <&cdc_pdm_lines_sus &cdc_pdm_lines_2_sus &cross_conn_det_sus >;
+	pinctrl-1 = <&cdc_pdm_lines_act &cdc_pdm_lines_2_act &cross_conn_det_sus >;
+	pinctrl-2 = <&cdc_pdm_lines_sus &cdc_pdm_lines_2_sus &cross_conn_det_act >;
+	pinctrl-3 = <&cdc_pdm_lines_act &cdc_pdm_lines_2_act &cross_conn_det_sus >;
+	pinctrl-4 = <&spkl_ext_pa_sus>;
+	pinctrl-5 = <&spkr_ext_pa_sus >;
+	pinctrl-6 = <&spkl_ext_pa_act>;
+	pinctrl-7 = <&spkr_ext_pa_act >;
+	//qcom,msm-spk-ext-pa = <&msm_gpio 24 0>;
+	qcom,cdc-us-euro-gpios = <&tlmm 48 0x00>;
+	qcom,spk_ext_pa_l = <&tlmm 20 0x0>;
+	qcom,spk_ext_pa_r = <&tlmm 24 0x0>;
+	//qcom,spk_hs_switch = <&tlmm 91 0x0>;
+	//qcom,spk_rec_switch = <&tlmm 63 0x0>;
+	//qcom,cdc-us-euro-gpios;
+	qcom,msm-hs-micbias-type = "internal";
+	//qcom,msm-hs-micbias-type = "external";
+	qcom,audio-routing =
+		"RX_BIAS", "MCLK",
+		"SPK_RX_BIAS", "MCLK",
+		"INT_LDO_H", "MCLK",
+		"MIC BIAS Internal1", "Handset Mic",
+		"MIC BIAS Internal2", "Headset Mic",
+		//"MIC BIAS External", "Handset Mic",
+		//"MIC BIAS External2", "Headset Mic",
+		"AMIC1", "MIC BIAS Internal1",
+		"AMIC2", "MIC BIAS Internal2";
+		//"AMIC1", "MIC BIAS External",
+		//"AMIC2", "MIC BIAS External2";
+
+};
+
+
+&soc {
+	sn_fuse: snfuse@0xA4128 {
+		compatible = "qcom,sn-fuse";
+		reg = <0xA4128 0x4>,
+					<0xA6034 0x4>;
+		reg-names =  "sn-base", "fuse-state";
+	};
+
+	ramoops {
+		compatible = "ramoops";
+		status = "ok";
+
+		/* This is tacked at the end of wcnss_fw_region@0 */
+		android,ramoops-buffer-start = <0x8ee00000>;
+		android,ramoops-buffer-size = <0x80000>;
+		android,ramoops-console-size = <0x40000>;
+		android,ramoops-pmsg-size = <0x20000>;
+		android,ramoops-record-size = <0x5000>;
+		android,ramoops-ftrace-size = <0x15000>;
+		android,ramoops-dump-oops = <0x1>;
+		linux,contiguous-region = <&ramoops_mem>;
+	};
+};

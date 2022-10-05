@@ -1,0 +1,62 @@
+/ {
+	qcom,msm-id = <303 0x0>, <307 0x0>, <308 0x0>, <309 0x0>;
+
+	reserved-memory {
+                ramoops_mem: ramoops_region@0 {
+                        compatible = "removed-dma-pool";
+                        no-map;
+                        reg = <0 0x8ee00000 0x0 0x80000>;
+                };
+        };
+};
+
+&firmware {
+	android {
+		fstab {
+			system {
+					compatible = "android,system";
+					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/system";
+					type = "ext4";
+					mnt_flags = "ro,barrier=1,discard";
+					fsmgr_flags = "wait";
+					status = "ok";
+			};
+
+			vendor {
+				status = "disabled";
+			};
+		};
+	};
+};
+
+&usb_otg{
+	qcom,usbin-vadc = <&pmi8937_vadc>;
+};
+
+&soc {
+	qcom,wcnss-wlan@0a000000 {
+		clock-names = "xo", "rf_clk", "measure", "wcnss_debug","snoc_wcnss";
+		clocks = <&clock_gcc clk_xo_wlan_clk>,
+			 <&clock_gcc clk_rf_clk2>,
+			 <&clock_debug clk_gcc_debug_mux_8937>,
+			 <&clock_gcc clk_wcnss_m_clk>,
+			 <&clock_gcc clk_snoc_wcnss_a_clk>;
+		qcom,snoc-wcnss-clock-freq = <200000000>;
+	};
+
+	ramoops {
+                compatible = "ramoops";
+                status = "ok";
+
+                /* This is tacked at the end of wcnss_fw_region@0 */
+                android,ramoops-buffer-start = <0x8ee00000>;
+                android,ramoops-buffer-size = <0x80000>;
+                android,ramoops-console-size = <0x40000>;
+                android,ramoops-pmsg-size = <0x20000>;
+                android,ramoops-record-size = <0x5000>;
+                android,ramoops-ftrace-size = <0x15000>;
+                android,ramoops-dump-oops = <0x1>;
+                linux,contiguous-region = <&ramoops_mem>;
+        };
+
+};

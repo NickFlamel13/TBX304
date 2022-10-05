@@ -1,0 +1,153 @@
+/*
+ * Copyright (c) 2015-2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+&soc {
+        hall_switch {
+		compatible = "hall-switch";
+		pinctrl-names = "default";
+		pinctrl-0 = <&hall_sensor_int_default>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <44 0x2003>;
+		vddio-supply = <&pm8953_l5>;
+		linux,gpio-int = <&tlmm 44 0x1>;
+		linux,wakeup;
+		linux,min-uv = <1650000>;
+		linux,max-uv = <3300000>;
+        };
+        gpio_keys {
+                /delete-node/ camera_focus;
+                /delete-node/ camera_snapshot;
+        };
+
+        /delete-node/ hbtp;
+};
+
+&pmi_haptic{
+        status = "okay";
+        qcom,actuator-type = "erm";
+};
+
+
+&mdss_dsi0 {
+        /delete-property/ lab-supply;
+        /delete-property/ ibb-supply;
+        /delete-property/ vdd-supply;
+        qcom,dsi-pref-prim-pan = <&dsi_auont51021_1200p_vid>;
+        /delete-property/ qcom,platform-reset-gpio;
+        qcom,platform-bklight-en-gpio = <&tlmm 46 0>;
+};
+
+&spmi_bus {
+        qcom,pmi8950@2 {
+                qcom,leds@a100 {
+                        status = "okay";
+                        qcom,led_mpp_2 {
+                                label = "mpp";
+                                linux,name = "green";
+                                linux,default-trigger = "none";
+                                qcom,default-state = "off";
+                                qcom,max-current = <40>;
+                                qcom,current-setting = <5>;
+                                qcom,id = <6>;
+                                qcom,mode = "pwm"; //pwm mode 
+                                qcom,source-sel = <8>;//DTEST1 
+                                qcom,mode-ctrl = <0x60>; //current sink 
+                                qcom,pwm-channel = <0>; 
+                                qcom,pwm-us = <1000000>;//original period is 1 second 
+                                pwms = <&pmi8950_pwm 0 0>; 
+                                pwm-names="green"; // add this 
+                        };
+                };
+        };
+};
+
+/{
+        mtp_batterydata: qcom,battery-data {
+                /delete-node/ qcom,ascent-3450mah;
+                /delete-node/ qcom,itech-3000mah;
+                #include "batterydata-SCUD-4250mAh.dtsi"
+                #include "batterydata-SCUD2-4250mAh.dtsi"
+                #include "batterydata-ATL-4250mAh.dtsi"
+        };
+};
+
+&pmi8950_fg {
+        qcom,thermal-coefficients = [C5 86 BE 50 D1 37];
+        qcom,fg-therm-delay-us = <3000>;
+        qcom,cold-hot-jeita-hysteresis = <20 20>;
+        qcom,fg-vbat-estimate-diff-mv = <100>;
+};
+
+&pmi8950_charger {
+        qcom,charge-unknown-battery;
+        qcom,fastchg-current-comp = <1200>;
+        qcom,float-voltage-comp = <0>;
+        qcom,chg-led-sw-controls;
+        qcom,chg-led-support;
+        /delete-property/ qcom,force-aicl-rerun;
+        /delete-property/ qcom,aicl-rerun-period-s;
+        /delete-property/ qcom,external-typec;
+        /delete-property/ qcom,typec-psy-name;
+};
+
+
+&i2c_3 {
+	status = "ok";
+		himax-ts@48 {
+		compatible = "himax,852xf";
+		reg = <0x48>;
+		pinctrl-names = "pmx_ts_active","pmx_ts_suspend",
+						"pmx_ts_release";
+		pinctrl-0 = <&ts_int_active &ts_reset_active &ts_pwr_active>;
+		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend &ts_pwr_suspend>;
+		pinctrl-2 = <&ts_release>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <65 0x2>;
+		vcc_i2c-supply = <&pm8953_l6>;
+		himax,panel-coords   	= <0 1200 0 1920>;
+		himax,display-coords 	= <0 1200 0 1920>;
+		himax,irq-gpio = <&tlmm 65 0x00>;
+		himax,rst-gpio = <&tlmm 64 0x00>;
+		himax,3v3-gpio = <&tlmm 131 0x00>;
+		report_type = <1>;
+	};
+};
+
+&i2c_5 { /* BLSP2 QUP1 (NFC) */
+	/delete-node/ nq@28;
+};
+
+&i2c_8 { /* BLSP2 QUP4 */
+	iqs263@44 { //Capacitive Touch Controller Driver
+		compatible = "azopteq,iqs263";
+		reg = <0x44>;
+		
+		pinctrl-names = "default";
+		pinctrl-0 = <&iqs263_irq_config>;
+		
+		vdd-supply = <&pm8953_l5>;
+		vio-supply = <&pm8953_l5>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <48 0x2>;
+		azopteq,irq-gpio =<&tlmm 48 0x2>;
+	};
+};
+
+&soc {
+	/delete-node/ hbtp;
+};
+
+&i2c_2 {
+	status = "disabled";
+};
+
