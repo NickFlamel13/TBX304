@@ -1,3 +1,0 @@
-&mdss_dsi0 {
-		qcom,platform-strength-ctrl = [ff 10];
-};
